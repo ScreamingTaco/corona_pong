@@ -20,13 +20,13 @@ local infiniteBtn
 local function onPlayBtnRelease()
 	
 	-- go to ClassicMode.lua scene
-	composer.gotoScene( "classicMode", "fade", 500 )
+	composer.gotoScene( "scenes.classicMode", "fade", 500 )
 	
 	return true	-- indicates successful touch
 end
 
 local function onInfiniteBtnRelease()
-    composer.gotoScene("infiniteMode", fade, 500)
+    composer.gotoScene("scenes.infiniteMode", fade, 500)
     return true
 end
 
@@ -41,7 +41,7 @@ function scene:create( event )
     
 	-- create/position logo/title image on upper-half of the screen
 	--idea: make the title a button that gives a fact about pong on every tap
-    local titleLogo = display.newImageRect( "logo.png", display.contentCenterX * 1.5, display.contentCenterY * 1.5)
+    local titleLogo = display.newImageRect( "images/logo.png", display.contentCenterX * 1.5, display.contentCenterY * 1.5)
 	titleLogo.x = display.contentCenterX
 	titleLogo.y = display.contentCenterY / 3
 	

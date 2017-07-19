@@ -15,4 +15,4 @@ math.randomseed(os.time())
 composer.recycleOnSceneChange = true
 
 -- load menu screen
-composer.gotoScene( "menu" )
+composer.gotoScene( "scenes.menu" )

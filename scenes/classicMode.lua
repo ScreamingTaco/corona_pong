@@ -4,20 +4,17 @@ local composer = require( "composer" )
 local physics = require("physics")
 local widget = require("widget")
 local scene = composer.newScene()
-
 local backBtn
+
 
 -- -----------------------------------------------------------------------------------
 -- Code outside of the scene event functions below will only be executed ONCE unless
 -- the scene is removed entirely (not recycled) via "composer.removeScene()"-- -------------------------------------------------------------------------------------
--- -----------------------------------------------------------------------------------
--- Scene event functions
--- -----------------------------------------------------------------------------------
-   
+ 
 function backBtnRelease()
-    composer.gotoScene("menu", fade, 500)
-end
-    
+    composer.gotoScene("scenes.menu", fade, 500)
+end        
+
 -- create()
 function scene:create( event )
 
@@ -25,6 +22,8 @@ function scene:create( event )
 -- Code here runs when the scene is first created but has not yet appeared on screen
     background = display.newRect(display.contentCenterX, display.contentCenterY, display.contentWidth, display.contentHeight)
     background:setFillColor(0, 0, 0) -- black
+    local divide = display.newRect(display.contentCenterX, display.contentCenterY, 1, display.contentHeight / 2)
+    divide:setFillColor(1, 1, 1)
 
     local screenTop = display.newRect(display.contentCenterX, display.screenOriginY, 450, 1)
     screenTop:setFillColor(0, 0, 0)
@@ -33,8 +32,9 @@ function scene:create( event )
 
 
     --the different colors are to make debugging easier, will change for release
-    platform = display.newRect(display.contentCenterX + (display.contentWidth / 2), display.contentCenterY, 10, display.contentHeight)
+    platform = display.newRect(display.contentCenterX + (display.contentWidth / 2), display.contentCenterY, 10, display.contentHeight / 5)
     platform:setFillColor( 1, 1, 1)
+
     platform.score = 0
     player = display.newRect(display.contentCenterX - (display.contentWidth / 2), display.contentCenterY, 10, display.contentHeight / 5)
     player:setFillColor( 1, 1, 1)
@@ -50,10 +50,10 @@ function scene:create( event )
     physics.addBody(screenBottom, "static", {bounce = 0})
     physics.addBody(platform, "static", {bounce = 0})
     physics.addBody(player, "static", {bounce = 0})
-    physics.addBody(ball, "dynamic", { radius = ball.radius, bounce=1.05})
+    physics.addBody(ball, "dynamic", { radius = ball.radius, bounce=1})
     ball.gravityScale = 0 --removes the effect of gravity from the ball
 
-	backBtn = widget.newButton{
+    backBtn = widget.newButton{
 		label="back",
 		labelColor = { default={255}, over={128} },
 		width=154, height=40,
@@ -61,18 +61,20 @@ function scene:create( event )
 	}
 	backBtn.x = display.contentCenterX
 	backBtn.y = display.contentCenterY / 10
-
+    
     sceneGroup:insert(background)
     sceneGroup:insert(player)
     sceneGroup:insert(platform)
     sceneGroup:insert(ball)
     sceneGroup:insert(backBtn)
+    sceneGroup:insert(divide)
 end
 
 local function reset()
     ball.x = display.contentCenterX
     ball.y = display.contentCenterY
-    timer.performWithDelay(3000, ball:setLinearVelocity(350, -math.random(20, 75)))
+    timer.performWithDelay(3000, ball:setLinearVelocity(350, -math.random(30, 70)))
+    player.x = display.contentCenterX - (display.contentWidth / 2)
     player.y = display.contentCenterY
     platform.x = display.contentCenterX + (display.contentWidth / 2)
     platform.y = display.contentCenterY
@@ -88,9 +90,30 @@ local function TouchListener( event )
     end
 end
 
-local function Update (event)
+local function Update(event)
+    transition.moveTo(platform, {x = platform.x, y = ball.y, speed = 50})--for whatever reason transition.to() wouldnt work
+    --platform.y = ball.y
+    
     if ball.x < player.x - 30 then
-        reset()
+        platform.score = platform.score + 1
+        if platform.score == 5 then
+            --add lose text
+            reset()
+            player.score = 0
+            platform.score = 0
+        else
+            reset()
+        end
+    elseif ball.x > platform.x + 30 then
+        player.score = player.score + 1
+        if player.score == 5 then
+        --add win text
+            reset()
+            player.score = 0
+            pllatform.score = 0
+        else 
+            reset()
+        end
     end
 end
 
@@ -107,11 +130,11 @@ function scene:show( event )
 -- Code here runs when the scene is entirely on screen
         physics.start()
         Runtime:addEventListener( "enterFrame", Update )--stuff to do every update interval
+        --timer.performWithDelay(100, Update, -1)
         background:addEventListener( "touch", TouchListener )
         reset()
     end
 end
-
 
 -- hide()
 function scene:hide( event )
@@ -123,7 +146,6 @@ function scene:hide( event )
     -- Code here runs when the scene is on screen (but is about to go off screen)
         physics.stop()
         Runtime:removeEventListener("enterFrame", Update)
-        
     elseif ( phase == "did" ) then
     -- Code here runs immediately after the scene goes entirely off screen
 
@@ -136,7 +158,7 @@ function scene:destroy( event )
 
     local sceneGroup = self.view
 -- Code here runs prior to the removal of scene's view
-
+    Runtime:removeEventListener("enterFrame", Update)
     package.loaded[physics] = nil
     physics = nil
 end
@@ -150,5 +172,4 @@ scene:addEventListener( "hide", scene )
 scene:addEventListener( "destroy", scene )
 -- -----------------------------------------------------------------------------------
 
-        
 return scene
