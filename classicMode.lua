@@ -66,6 +66,8 @@ function scene:create( event )
     sceneGroup:insert(player)
     sceneGroup:insert(platform)
     sceneGroup:insert(ball)
+    sceneGroup:insert(backBtn)
+    sceneGroup:insert(divide)
 end
 
 local function reset()

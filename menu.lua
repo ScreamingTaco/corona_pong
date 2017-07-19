@@ -41,7 +41,7 @@ function scene:create( event )
     
 	-- create/position logo/title image on upper-half of the screen
 	--idea: make the title a button that gives a fact about pong on every tap
-    local titleLogo = display.newImageRect( "logo.png", display.contentCenterX, display.contentCenterY / 2 )
+    local titleLogo = display.newImageRect( "logo.png", display.contentCenterX * 1.5, display.contentCenterY * 1.5)
 	titleLogo.x = display.contentCenterX
 	titleLogo.y = display.contentCenterY / 3
 	
